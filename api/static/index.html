@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Game Inventory</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="layout">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <span class="logo"><span></span></span>
+                <div class="brand-text">
+                    <strong>GAME</strong><em>INVENTORY</em>
+                    <span class="brand-sub">multi-store library</span>
+                </div>
+                <button class="icon-btn only-mobile" id="nav-close" aria-label="Cerrar menú">✕</button>
+            </div>
+
+            <div class="hud" id="hud"></div>
+
+            <nav id="nav"></nav>
+
+            <div class="side-foot">
+                <button class="sync-btn" id="sync">
+                    <span class="dot"></span> Sincronizar
+                </button>
+                <div id="sync-info">—</div>
+            </div>
+        </aside>
+        <div class="scrim" id="scrim" hidden></div>
+
+        <div class="main">
+            <header class="topbar">
+                <button class="icon-btn only-mobile" id="nav-open" aria-label="Abrir menú">☰</button>
+                <div class="search">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                            d="M10 4a6 6 0 104.47 10.03l4.25 4.25 1.41-1.41-4.25-4.25A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z" />
+                    </svg>
+                    <input id="q" type="search" placeholder="¿Ya tengo este juego? Escribe el título…"
+                        autocomplete="off">
+                    <kbd>/</kbd>
+                </div>
+            </header>
+
+            <main class="content">
+                <div class="section-head">
+                    <h2 id="section-title">Todos los juegos</h2>
+                    <div id="count" class="count"></div>
+                </div>
+                <div class="grid" id="grid"></div>
+                <button class="more" id="more" hidden>Cargar más</button>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

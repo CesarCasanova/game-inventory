@@ -1,0 +1,77 @@
+services:
+  romm:
+    image: rommapp/romm:latest
+    container_name: romm
+    environment:
+      - DB_HOST=romm-db
+      - DB_NAME=romm
+      - DB_USER=romm-user
+      - DB_PASSWD=f27MpO4uKYJhgHEm # igual que MARIADB_PASSWORD
+      - ROMM_AUTH_SECRET_KEY=e63d80c658053d21120b6cf29dc9e1b94c30d204788062213c4014a98c645822 # openssl rand -hex 32
+      - SCREENSCRAPER_USER=skywolf92 # cuenta gratuita en screenscraper.fr
+      - SCREENSCRAPER_PASSWORD=Cucuygrimm9215
+      #- RETROACHIEVEMENTS_API_KEY= # opcional
+      #- STEAMGRIDDB_API_KEY= # opcional, mejores carátulas
+      - HASHEOUS_API_ENABLED=true
+      - SCAN_WORKERS=4
+      - WEB_SERVER_CONCURRENCY=4
+      - TZ=America/Lima
+    volumes:
+      - ./config/romm:/romm/config
+      #- romm_redis_data:/redis-data
+      - /home/ccasanova/games/Emulador/resources:/romm/resources # carátulas y capturas
+      - /home/ccasanova/games/Emulador/library:/romm/library
+      - /home/ccasanova/games/Emulador/assets:/romm/assets # saves y savestates
+    ports:
+      - 8095:8080
+    depends_on:
+      romm-db:
+        condition: service_healthy
+        restart: true
+    restart: unless-stopped
+    networks:
+      - home-network
+  romm-db:
+    image: mariadb:latest
+    container_name: romm-db
+    environment:
+      - MARIADB_ROOT_PASSWORD=R24lJRsIR3cUX2W4
+      - MARIADB_DATABASE=romm
+      - MARIADB_USER=romm-user
+      - MARIADB_PASSWORD=f27MpO4uKYJhgHEm # igual que DB_PASSWD
+    volumes:
+      - ./config/mariadb:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 30s
+      start_interval: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    ports:
+      - 3307:3306
+    networks:
+      - home-network
+  game-inventory:
+    build: .
+    container_name: game-inventory
+    environment:
+      - STEAM_API_KEY= # steamcommunity.com/dev/apikey
+      - STEAM_ID= # tu SteamID64
+      - PSN_NPSSO= # token NPSSO
+      - XDG_CONFIG_HOME=/data # sesión de legendary en /data/legendary
+      #- EPIC_JSON=/data/epic.json # salida de 'legendary list --json'
+      - MANUAL_CSV=/data/manual.csv # Xbox, GOG, físicos
+      - IGDB_CLIENT_ID= # opcional
+      - IGDB_CLIENT_SECRET=
+      - TZ=America/Lima
+    volumes:
+      - ./config/game-inventory:/data
+      - ./api:/app:rw
+    ports:
+      - 5057:8000
+    restart: unless-stopped
+networks:
+  home-network:
+    external: true
