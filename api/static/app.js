@@ -1,4 +1,4 @@
-/* Game Inventory — Nexus Tech HUD Controller */
+/* Game Inventory — RomM Edition Controller */
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -12,7 +12,7 @@ const STORE_ICONS = {
     manual: `<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H9v2H7v-2H5v-2h2V9h2v2h2v2zm4.5 1c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`
 };
 
-const GAMEPAD_ICON = `<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H9v2H7v-2H5v-2h2V9h2v2h2v2zm4.5 1c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`;
+const GAMEPAD_ICON = `<svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H9v2H7v-2H5v-2h2V9h2v2h2v2zm4.5 1c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`;
 
 const state = {
     q: '',
@@ -33,8 +33,8 @@ let debounceTimer = null;
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
-    // Restore Theme Accent
-    const savedTheme = localStorage.getItem('nexus-theme') || '#00f0ff';
+    // Restore Theme Accent (Default: RomM Violet #9205f2)
+    const savedTheme = localStorage.getItem('nexus-theme') || '#9205f2';
     setThemeColor(savedTheme);
 
     // Restore Scanlines Preference
@@ -140,8 +140,8 @@ async function init() {
 }
 
 function setThemeColor(color) {
-    document.documentElement.style.setProperty('--cyan', color);
-    document.documentElement.style.setProperty('--cyan-glow', `${color}55`);
+    document.documentElement.style.setProperty('--accent', color);
+    document.documentElement.style.setProperty('--accent-glow', `${color}55`);
     $$('#theme-picker .color-dot').forEach((d) => {
         d.classList.toggle('active', d.dataset.color === color);
     });
@@ -181,7 +181,7 @@ async function refreshStats() {
         </div>
         <div class="cell wide">
             <div class="k">Horas Jugadas</div>
-            <div class="v">${Math.round(s.playtime_hours)} h <span style="font-size:10.5px;opacity:0.7">(${s.entries} títulos)</span></div>
+            <div class="v">${Math.round(s.playtime_hours)} h <span style="font-size:11px;opacity:0.75">(${s.entries} títulos)</span></div>
         </div>
     `;
 
@@ -204,8 +204,8 @@ async function refreshStats() {
 
     $('#hud-widget').innerHTML = `
         <div class="widget-title">
-            <span>DISTRIBUCIÓN DE TIENDAS</span>
-            <span>${s.per_store.length} PLATAFORMAS</span>
+            <span>DISTRIBUCIÓN POR TIENDA</span>
+            <span>${s.per_store.length} TIENDAS</span>
         </div>
         <div class="dist-bar-group">
             ${storeBarsHtml}
@@ -264,9 +264,9 @@ async function refreshStats() {
     const failed = (s.last_syncs || []).filter((r) => !r.ok);
     const last = (s.last_syncs || [])[0];
     $('#sync-info').innerHTML =
-        (last ? `Último: <strong style="color:var(--cyan)">${esc(last.store)}</strong> · ${esc((last.ran_at || '').slice(0, 16).replace('T', ' '))}<br>` : '') +
+        (last ? `Último: <strong style="color:var(--accent)">${esc(last.store)}</strong> · ${esc((last.ran_at || '').slice(0, 16).replace('T', ' '))}<br>` : '') +
         (s.igdb ? `IGDB: ${s.matched_igdb} resueltos` : 'IGDB: Standby') +
-        (failed.length ? `<br><span style="color:#ff007f;font-weight:600">${failed.length} error(es) en sync</span>` : '');
+        (failed.length ? `<br><span style="color:#f85149;font-weight:600">${failed.length} error(es) en sync</span>` : '');
 }
 
 function navBtn(x) {
@@ -330,12 +330,12 @@ async function load(reset) {
         $('#more').hidden = state.offset + state.limit >= d.count;
 
     } catch (e) {
-        $('#grid').innerHTML = `<p class="empty" style="color:#ff007f">// ERROR SISTEMA: ${esc(e.message)}</p>`;
+        $('#grid').innerHTML = `<p class="empty" style="color:#f85149">// ERROR SISTEMA: ${esc(e.message)}</p>`;
     }
 }
 
 function renderSkeletons() {
-    const skeletonsHtml = Array(6).fill(0).map(() => '<div class="skeleton-card"></div>').join('');
+    const skeletonsHtml = Array(12).fill(0).map(() => '<div class="skeleton-card"></div>').join('');
     $('#grid').innerHTML = skeletonsHtml;
 }
 
@@ -380,7 +380,7 @@ function pickRandomHeroGame() {
     }
 
     const dupe = game.store_count > 1;
-    $('#hero-badge').textContent = dupe ? '⚡ REPETIDO DESTACADO' : '🎲 DESTACADO ALEATORIO';
+    $('#hero-badge').textContent = dupe ? '⚡ REPETIDO DESTACADO' : '🎲 DESTACADO DE TU COLECCIÓN';
     $('#hero-title').textContent = game.title;
 
     const hours = game.playtime_min >= 60 ? `${Math.round(game.playtime_min / 60)}h jugadas` : 'Sin horas registradas';
@@ -414,31 +414,30 @@ function renderItems() {
     });
 }
 
+/* RomM Style Poster Grid Card (3:4 Ratio) */
 function card(g) {
     const dupe = g.store_count > 1;
     const tags = g.copies.map((c) => {
         const icon = STORE_ICONS[c.store] || STORE_ICONS.manual;
-        return `<span class="tag ${esc(c.store)}">${icon} ${esc(c.store_label)}${c.platform ? ' · ' + esc(c.platform) : ''}</span>`;
+        return `<span class="tag ${esc(c.store)}">${icon} ${esc(c.store_label)}</span>`;
     }).join('');
     
     const hours = g.playtime_min >= 60 ? `${Math.round(g.playtime_min / 60)}h` : '';
-    const variants = [...new Set(g.copies.map((c) => c.raw_title))];
-    
     const coverHtml = g.cover 
         ? `<img class="cover" loading="lazy" src="${esc(g.cover)}" alt="${esc(g.title)}">`
         : `<div class="cover-fallback">${GAMEPAD_ICON}</div>`;
 
     return `
         <article class="card ${dupe ? 'dupe' : ''}">
+            ${dupe ? '<div class="dupe-badge-float">⚡ REPETIDO</div>' : ''}
             <div class="cover-wrapper">${coverHtml}</div>
+            <div class="card-overlay"></div>
             <div class="info">
                 <div class="title">${esc(g.title)}</div>
                 <div class="meta-row">
                     ${hours ? `<span class="meta-item">🎮 ${hours}</span>` : ''}
-                    ${variants.length > 1 ? `<span class="meta-item">📦 ${variants.length} ed.</span>` : ''}
                 </div>
                 <div class="tags">
-                    ${dupe ? '<span class="tag dupe">⚡ REPETIDO</span>' : ''}
                     ${tags}
                 </div>
             </div>
@@ -466,8 +465,8 @@ function listRow(g) {
                 <div class="meta-row">
                     <span class="meta-item">🎮 ${hours}</span>
                 </div>
+                ${dupe ? '<div class="dupe-badge-float">⚡ REPETIDO</div>' : ''}
                 <div class="tags">
-                    ${dupe ? '<span class="tag dupe">⚡ REPETIDO</span>' : ''}
                     ${tags}
                 </div>
             </div>
@@ -491,7 +490,7 @@ function openModal(g) {
         return `
             <div class="copy-item">
                 <div class="copy-left">
-                    <span class="tag ${esc(c.store)}" style="font-size:12px;padding:6px 10px">${icon} ${esc(c.store_label)}</span>
+                    <span class="tag ${esc(c.store)}" style="font-size:12px;padding:5px 12px">${icon} ${esc(c.store_label)}</span>
                     <div class="copy-details">
                         <div class="copy-store-name">${esc(c.raw_title || g.title)}</div>
                         <div class="copy-platform">Plataforma: <strong>${esc(c.platform || 'Digital')}</strong></div>

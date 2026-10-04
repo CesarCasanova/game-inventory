@@ -4,18 +4,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Game Inventory — Tech HUD Core</title>
+    <title>Game Inventory — RomM Edition</title>
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Rajdhani:wght@600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <!-- CRT Scanlines overlay container -->
+    <!-- CRT Scanlines overlay container (opcional) -->
     <div id="scanlines-overlay" class="scanlines-overlay" hidden></div>
 
     <div class="layout">
@@ -23,12 +23,16 @@
         <aside class="sidebar" id="sidebar">
             <div class="brand">
                 <div class="logo">
-                    <div class="logo-inner"></div>
-                    <div class="logo-pulse"></div>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="6" width="20" height="12" rx="3"></rect>
+                        <path d="M6 12h4m-2-2v4"></path>
+                        <circle cx="15" cy="11" r="1" fill="currentColor"></circle>
+                        <circle cx="18" cy="13" r="1" fill="currentColor"></circle>
+                    </svg>
                 </div>
                 <div class="brand-text">
-                    <strong>NEXUS</strong><em>INVENTORY</em>
-                    <span class="brand-sub">Multi-Store Core</span>
+                    <strong>GAME</strong><em>INVENTORY</em>
+                    <span class="brand-sub">RomM Collection</span>
                 </div>
                 <button class="icon-btn only-mobile" id="nav-close" aria-label="Cerrar menú">✕</button>
             </div>
@@ -58,26 +62,25 @@
 
                 <div class="search">
                     <svg viewBox="0 0 24 24" aria-hidden="true" class="search-ico">
-                        <path
-                            d="M10 4a6 6 0 104.47 10.03l4.25 4.25 1.41-1.41-4.25-4.25A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z" />
+                        <path d="M10 4a6 6 0 104.47 10.03l4.25 4.25 1.41-1.41-4.25-4.25A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z" />
                     </svg>
-                    <input id="q" type="search" placeholder="¿Ya tengo este juego? Busca por título…" autocomplete="off">
+                    <input id="q" type="search" placeholder="¿Ya tengo este juego? Buscar título…" autocomplete="off">
                     <button class="clear-btn" id="clear-search" hidden aria-label="Limpiar búsqueda">✕</button>
                     <kbd class="hotkey">/</kbd>
                 </div>
 
                 <div class="topbar-actions">
                     <!-- Theme Accent Picker -->
-                    <div class="theme-picker" id="theme-picker" title="Seleccionar Acento de Color Neón">
-                        <button class="color-dot active" data-color="#00f0ff" style="--c:#00f0ff" title="Cyber Cyan"></button>
+                    <div class="theme-picker" id="theme-picker" title="Acento de Color RomM">
+                        <button class="color-dot active" data-color="#9205f2" style="--c:#9205f2" title="RomM Violet"></button>
+                        <button class="color-dot" data-color="#00f0ff" style="--c:#00f0ff" title="Cyber Cyan"></button>
+                        <button class="color-dot" data-color="#2ea043" style="--c:#2ea043" title="Emerald Green"></button>
                         <button class="color-dot" data-color="#ff007f" style="--c:#ff007f" title="Neon Pink"></button>
-                        <button class="color-dot" data-color="#00ff88" style="--c:#00ff88" title="Matrix Green"></button>
-                        <button class="color-dot" data-color="#9d4edd" style="--c:#9d4edd" title="Ultraviolet"></button>
-                        <button class="color-dot" data-color="#ffaa00" style="--c:#ffaa00" title="Solar Amber"></button>
+                        <button class="color-dot" data-color="#d29922" style="--c:#d29922" title="Solar Amber"></button>
                     </div>
 
                     <!-- Scanlines FX Button -->
-                    <button class="icon-btn scanline-btn" id="scanlines-btn" title="Alternar Efecto Scanlines CRT">
+                    <button class="icon-btn scanline-btn" id="scanlines-btn" title="Alternar Efecto CRT Scanlines">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                             <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 8h14v2H5V8zm0 5h14v2H5v-2z"/>
                         </svg>
@@ -85,7 +88,7 @@
 
                     <!-- View Modes Toggle -->
                     <div class="view-toggle" id="view-toggle">
-                        <button class="view-btn active" data-view="grid" title="Vista Cuadrícula">
+                        <button class="view-btn active" data-view="grid" title="Vista Cuadrícula Poster">
                             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                                 <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
                             </svg>
@@ -110,12 +113,12 @@
             </header>
 
             <main class="content">
-                <!-- Hero Spotlight Banner -->
+                <!-- Hero Spotlight Banner estilo RomM -->
                 <div class="hero-spotlight" id="hero-spotlight">
                     <div class="hero-bg" id="hero-bg"></div>
                     <div class="hero-overlay"></div>
                     <div class="hero-content">
-                        <div class="hero-badge" id="hero-badge">🎲 DESTACADO ALEATORIO</div>
+                        <div class="hero-badge" id="hero-badge">🎲 DESTACADO EN ROMM</div>
                         <h1 class="hero-title" id="hero-title">—</h1>
                         <div class="hero-meta" id="hero-meta"></div>
                         <div class="hero-actions">
@@ -147,7 +150,7 @@
         </div>
     </div>
 
-    <!-- Modal para Detalle del Juego -->
+    <!-- Modal para Detalle del Juego estilo RomM -->
     <div class="modal-backdrop" id="modal-backdrop" hidden>
         <div class="modal-window" id="modal-window">
             <button class="modal-close" id="modal-close" aria-label="Cerrar modal">✕</button>
