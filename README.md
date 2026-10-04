@@ -1,80 +1,80 @@
 # 🎮 Game Inventory — Multi-Store Core & RomM UI
 
-**Game Inventory** es un agregador y gestor de inventario de videojuegos multi-tienda. Permite unificar tu biblioteca de juegos distribuidos en múltiples plataformas (**Steam**, **PlayStation Network (PSN)**, **Epic Games**, **Xbox**, **GOG** y **Juegos Físicos / Manuales**), identificando duplicados entre tiendas, sumando horas de juego y ofreciendo una interfaz web moderna **estilo RomM (RomM Edition)**.
+**Game Inventory** is a multi-store video game aggregator and inventory manager. It allows you to consolidate your game library across multiple platforms (**Steam**, **PlayStation Network (PSN)**, **Epic Games**, **Xbox**, **GOG**, and **Physical / Manual Entries**), identifying cross-store duplicates, summing total playtime hours, and presenting everything in a modern web UI **inspired by RomM (RomM Edition)**.
 
 ---
 
-## ✨ Características Principales
+## ✨ Key Features
 
-- 🔄 **Sincronización Multi-Tienda**:
-  - **Steam**: Colección completa y horas de juego usando Steam Web API.
-  - **PlayStation Network (PSN)**: Títulos y plataformas (PS4/PS5) vía token `PSN_NPSSO`.
-  - **Epic Games**: Importación mediante la salida JSON de `legendary`.
-  - **Manual / GOG / Xbox / Físicos**: Compatibilidad con archivo CSV (`manual.csv`).
-- ⚡ **Detección Automática de Duplicados**:
-  - Agrupa automáticamente diferentes ediciones y copias del mismo título poseído en 2 o más tiendas (ej. *Fall Guys* en Epic & PSN, o *Fallout 4* en Steam & PSN).
-  - Muestra alertas destacadas `⚡ REPETIDO` para evitar comprar juegos que ya posees.
-- 🎨 **Interfaz Web Estilo RomM ([demo.romm.app](https://demo.romm.app))**:
-  - **Estética RomM Midnight & Electric Violet**: Fondo obsidian oscuro (`#0d1117`) con acentos neón violeta (`#9205f2`).
-  - **Vista Cuadrícula Poster (Aspect Ratio 3:4)**: Tarjetas formato poster como en RomM y librerías de consola.
-  - **Vista Lista Compacta**: Formato tabla para explorar catálogos extensos rápidamente.
-  - **Hero Spotlight Banner**: Destacado dinámico panorámico con carátulas desenfocadas y seleccionador aleatorio (`🎲 Siguiente Título`).
-  - **Gráficos de Distribución por Tienda & Backlog**: Barras de progreso visuales con % por plataforma y segmento de `🎮 Jugados (>0h)` vs `💤 Backlog (0h)`.
-  - **Personalización de Colores & CRT Scanlines**: Selector de acentos (RomM Violet, Cyber Cyan, Emerald Green, Neon Pink, Solar Amber) y alternador de efecto CRT Scanlines.
-- 🔍 **Modal Interactivo de Detalle**:
-  - Desglose completo al hacer clic en cualquier juego: tienda origen, plataforma exacta, horas jugadas por licencia y enlaces directos a IGDB y Google.
-- 🐳 **Despliegue Listo con Docker Compose**:
-  - Contenedor ligero FastAPI + Uvicorn + SQLite con recarga en caliente y volúmenes persistentes.
-  - Integración nativa junto al contenedor de **RomM** (`rommapp/romm`).
+- 🔄 **Multi-Store Synchronization**:
+  - **Steam**: Full collection and playtime tracking via Steam Web API.
+  - **PlayStation Network (PSN)**: Titles and platform breakdown (PS4/PS5) via `PSN_NPSSO` token.
+  - **Epic Games**: Direct import using the JSON output of `legendary`.
+  - **Manual / GOG / Xbox / Physical**: Custom CSV import support (`manual.csv`).
+- ⚡ **Automatic Cross-Store Duplicate Detection**:
+  - Automatically groups different editions and copies of the exact same title owned across 2 or more stores (e.g., *Fall Guys* on Epic & PSN, or *Fallout 4* on Steam & PSN).
+  - Displays prominent `⚡ DUPLICATE` badges to prevent accidentally buying games you already own.
+- 🎨 **RomM-Inspired Web Interface ([demo.romm.app](https://demo.romm.app))**:
+  - **RomM Midnight & Electric Violet Aesthetics**: Deep obsidian dark background (`#0d1117`) paired with neon violet accents (`#9205f2`).
+  - **3:4 Portrait Poster Grid View**: Responsive poster card format matching RomM and console library standards.
+  - **Compact List View**: Sleek horizontal table view for rapidly browsing large catalogs.
+  - **Hero Spotlight Banner**: Dynamic wide banner with blurred cover backdrop and random title selector (`🎲 Next Title`).
+  - **Store Breakdown & Backlog HUD**: Visual progress bars showing percentage share per store and `🎮 Played (>0h)` vs `💤 Backlog (0h)` metrics.
+  - **Theme Accent Switcher & CRT Scanlines FX**: Customizable neon color themes (RomM Violet, Cyber Cyan, Emerald Green, Neon Pink, Solar Amber) and an optional CRT Scanlines effect toggle.
+- 🔍 **Interactive Game Detail Modal**:
+  - Full game breakdown popup upon clicking any card: store of origin, exact platform, playtime per license, and quick action links to IGDB and Google Search.
+- 🐳 **Docker & Docker Compose Ready**:
+  - Lightweight FastAPI + Uvicorn + SQLite container with hot reload and persistent data volumes.
+  - Native side-by-side integration with **RomM** (`rommapp/romm`).
 
 ---
 
-## 🛠️ Estructura del Proyecto
+## 🛠️ Project Structure
 
 ```
 game-inventory/
 ├── api/
-│   ├── app.py                 # Servidor FastAPI y endpoints (/api/games, /api/stats, /api/sync)
-│   ├── sync.py                # Script CLI de sincronización multi-tienda
+│   ├── app.py                 # FastAPI server and endpoints (/api/games, /api/stats, /api/sync)
+│   ├── sync.py                # Multi-store CLI synchronization script
 │   ├── gameinv/
-│   │   ├── collectors.py      # Recolectores (Steam, PSN, Epic, Manual)
-│   │   ├── db.py              # Base de datos SQLite
-│   │   ├── queries.py         # Agrupación y consultas de juegos/duplicados
-│   │   ├── igdb.py            # Resolución de metadatos e imágenes IGDB
-│   │   └── normalize.py       # Normalización de títulos para matching
+│   │   ├── collectors.py      # Store collectors (Steam, PSN, Epic, Manual)
+│   │   ├── db.py              # SQLite database manager
+│   │   ├── queries.py         # Duplicate grouping and database queries
+│   │   ├── igdb.py            # IGDB metadata and cover resolution
+│   │   └── normalize.py       # Title normalization for matching
 │   └── static/
-│       ├── index.html         # Estructura principal de la interfaz web
-│       ├── styles.css         # Estilos CSS RomM Edition
-│       └── app.js             # Controlador JavaScript de la interfaz
+│       ├── index.html         # Main web UI structure
+│       ├── styles.css         # RomM Edition CSS styles
+│       └── app.js             # Web UI JavaScript controller
 ├── config/
-│   ├── game-inventory/        # Base de datos y configuración persistente (/data)
-│   └── romm/                  # Configuración de RomM
-├── Dockerfile                 # Dockerfile de la API
-└── docker-compose.yml         # Orquestación de servicios (game-inventory, romm, romm-db)
+│   ├── game-inventory/        # Persistent database and configuration (/data)
+│   └── romm/                  # RomM configuration
+├── Dockerfile                 # API Dockerfile
+└── docker-compose.yml         # Container orchestration (game-inventory, romm, romm-db)
 ```
 
 ---
 
-## 🚀 Guía de Instalación y Uso
+## 🚀 Installation & Getting Started
 
-### 1. Requisitos Previos
-- [Docker](https://www.docker.com/) y [Docker Compose](https://docs.docker.com/compose/) instalados.
+### 1. Prerequisites
+- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed.
 
-### 2. Configurar Variables de Entorno
-Edita las variables en `docker-compose.yml` dentro del servicio `game-inventory`:
+### 2. Configure Environment Variables
+Edit the environment variables inside `docker-compose.yml` under the `game-inventory` service:
 
 ```yaml
 environment:
-  - STEAM_API_KEY=tu_steam_api_key    # https://steamcommunity.com/dev/apikey
-  - STEAM_ID=tu_steam_id_64           # Tu SteamID64 público
-  - PSN_NPSSO=tu_token_npsso          # Token NPSSO de PlayStation Network
-  - MANUAL_CSV=/data/manual.csv       # Ruta a juegos manuales
-  - IGDB_CLIENT_ID=                   # Opcional (Twitch/IGDB API)
-  - IGDB_CLIENT_SECRET=               # Opcional
+  - STEAM_API_KEY=your_steam_api_key    # https://steamcommunity.com/dev/apikey
+  - STEAM_ID=your_steam_id_64           # Your public SteamID64
+  - PSN_NPSSO=your_npsso_token          # PlayStation Network NPSSO token
+  - MANUAL_CSV=/data/manual.csv       # Path to manual CSV file
+  - IGDB_CLIENT_ID=                   # Optional (Twitch/IGDB API)
+  - IGDB_CLIENT_SECRET=               # Optional
 ```
 
-### 3. Iniciar los Servicios
-Ejecuta el siguiente comando en la raíz del proyecto:
+### 3. Launch Services
+Run the following command in the root directory:
 
 ```bash
 docker compose up -d --build
@@ -82,25 +82,25 @@ docker compose up -d --build
 
 ---
 
-## 🌐 Puertos y Accesos
+## 🌐 Ports & Access Points
 
-| Servicio | URL | Descripción |
+| Service | URL | Description |
 | :--- | :--- | :--- |
-| **Game Inventory Web UI** | `http://localhost:5057` | Interfaz principal estilo RomM |
-| **API Documentation** | `http://localhost:5057/api/docs` | Documentación de la API FastAPI (Swagger) |
-| **RomM Manager App** | `http://localhost:8095` | Instancia de RomM para ROMs y emulación |
+| **Game Inventory Web UI** | `http://localhost:5057` | Main RomM-style web interface |
+| **API Documentation** | `http://localhost:5057/api/docs` | FastAPI Swagger documentation |
+| **RomM Manager App** | `http://localhost:8095` | RomM instance for ROMs and emulation |
 
 ---
 
-## 📡 Endpoints de la API
+## 📡 API Endpoints
 
-- `GET /api/stats`: Devuelve métricas globales (juegos únicos, repetidos, horas jugadas, distribución por tienda y diagnósticos de sync).
-- `GET /api/games`: Lista juegos con soporte para búsqueda (`q`), filtro de tiendas (`store`), duplicados (`dupes`), paginación (`limit`, `offset`).
-- `GET /api/check?title=...`: Consulta rápida de disponibilidad (*¿Ya tengo este juego?*).
-- `POST /api/sync`: Dispara el proceso de sincronización con las APIs externas.
+- `GET /api/stats`: Returns global metrics (unique games, duplicates, total playtime, per-store breakdown, and sync status).
+- `GET /api/games`: Lists games with support for search (`q`), store filter (`store`), duplicates only (`dupes`), and pagination (`limit`, `offset`).
+- `GET /api/check?title=...`: Quick ownership check (*Do I already own this game?*).
+- `POST /api/sync`: Triggers the background multi-store synchronization job.
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está bajo la licencia MIT. Libre para modificar, distribuir y personalizar.
+This project is licensed under the MIT License. Feel free to modify, distribute, and customize.
