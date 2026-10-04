@@ -1,93 +1,106 @@
-# Game Inventory
+# 🎮 Game Inventory — Multi-Store Core & RomM UI
 
+**Game Inventory** es un agregador y gestor de inventario de videojuegos multi-tienda. Permite unificar tu biblioteca de juegos distribuidos en múltiples plataformas (**Steam**, **PlayStation Network (PSN)**, **Epic Games**, **Xbox**, **GOG** y **Juegos Físicos / Manuales**), identificando duplicados entre tiendas, sumando horas de juego y ofreciendo una interfaz web moderna **estilo RomM (RomM Edition)**.
 
+---
 
-## Getting started
+## ✨ Características Principales
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- 🔄 **Sincronización Multi-Tienda**:
+  - **Steam**: Colección completa y horas de juego usando Steam Web API.
+  - **PlayStation Network (PSN)**: Títulos y plataformas (PS4/PS5) vía token `PSN_NPSSO`.
+  - **Epic Games**: Importación mediante la salida JSON de `legendary`.
+  - **Manual / GOG / Xbox / Físicos**: Compatibilidad con archivo CSV (`manual.csv`).
+- ⚡ **Detección Automática de Duplicados**:
+  - Agrupa automáticamente diferentes ediciones y copias del mismo título poseído en 2 o más tiendas (ej. *Fall Guys* en Epic & PSN, o *Fallout 4* en Steam & PSN).
+  - Muestra alertas destacadas `⚡ REPETIDO` para evitar comprar juegos que ya posees.
+- 🎨 **Interfaz Web Estilo RomM ([demo.romm.app](https://demo.romm.app))**:
+  - **Estética RomM Midnight & Electric Violet**: Fondo obsidian oscuro (`#0d1117`) con acentos neón violeta (`#9205f2`).
+  - **Vista Cuadrícula Poster (Aspect Ratio 3:4)**: Tarjetas formato poster como en RomM y librerías de consola.
+  - **Vista Lista Compacta**: Formato tabla para explorar catálogos extensos rápidamente.
+  - **Hero Spotlight Banner**: Destacado dinámico panorámico con carátulas desenfocadas y seleccionador aleatorio (`🎲 Siguiente Título`).
+  - **Gráficos de Distribución por Tienda & Backlog**: Barras de progreso visuales con % por plataforma y segmento de `🎮 Jugados (>0h)` vs `💤 Backlog (0h)`.
+  - **Personalización de Colores & CRT Scanlines**: Selector de acentos (RomM Violet, Cyber Cyan, Emerald Green, Neon Pink, Solar Amber) y alternador de efecto CRT Scanlines.
+- 🔍 **Modal Interactivo de Detalle**:
+  - Desglose completo al hacer clic en cualquier juego: tienda origen, plataforma exacta, horas jugadas por licencia y enlaces directos a IGDB y Google.
+- 🐳 **Despliegue Listo con Docker Compose**:
+  - Contenedor ligero FastAPI + Uvicorn + SQLite con recarga en caliente y volúmenes persistentes.
+  - Integración nativa junto al contenedor de **RomM** (`rommapp/romm`).
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+---
 
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## 🛠️ Estructura del Proyecto
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/ccasanova/game-inventory.git
-git branch -M main
-git push -uf origin main
+game-inventory/
+├── api/
+│   ├── app.py                 # Servidor FastAPI y endpoints (/api/games, /api/stats, /api/sync)
+│   ├── sync.py                # Script CLI de sincronización multi-tienda
+│   ├── gameinv/
+│   │   ├── collectors.py      # Recolectores (Steam, PSN, Epic, Manual)
+│   │   ├── db.py              # Base de datos SQLite
+│   │   ├── queries.py         # Agrupación y consultas de juegos/duplicados
+│   │   ├── igdb.py            # Resolución de metadatos e imágenes IGDB
+│   │   └── normalize.py       # Normalización de títulos para matching
+│   └── static/
+│       ├── index.html         # Estructura principal de la interfaz web
+│       ├── styles.css         # Estilos CSS RomM Edition
+│       └── app.js             # Controlador JavaScript de la interfaz
+├── config/
+│   ├── game-inventory/        # Base de datos y configuración persistente (/data)
+│   └── romm/                  # Configuración de RomM
+├── Dockerfile                 # Dockerfile de la API
+└── docker-compose.yml         # Orquestación de servicios (game-inventory, romm, romm-db)
 ```
 
-## Integrate with your tools
+---
 
-* [Set up project integrations](https://gitlab.com/ccasanova/game-inventory/-/settings/integrations)
+## 🚀 Guía de Instalación y Uso
 
-## Collaborate with your team
+### 1. Requisitos Previos
+- [Docker](https://www.docker.com/) y [Docker Compose](https://docs.docker.com/compose/) instalados.
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### 2. Configurar Variables de Entorno
+Edita las variables en `docker-compose.yml` dentro del servicio `game-inventory`:
 
-## Test and Deploy
+```yaml
+environment:
+  - STEAM_API_KEY=tu_steam_api_key    # https://steamcommunity.com/dev/apikey
+  - STEAM_ID=tu_steam_id_64           # Tu SteamID64 público
+  - PSN_NPSSO=tu_token_npsso          # Token NPSSO de PlayStation Network
+  - MANUAL_CSV=/data/manual.csv       # Ruta a juegos manuales
+  - IGDB_CLIENT_ID=                   # Opcional (Twitch/IGDB API)
+  - IGDB_CLIENT_SECRET=               # Opcional
+```
 
-Use the built-in continuous integration in GitLab.
+### 3. Iniciar los Servicios
+Ejecuta el siguiente comando en la raíz del proyecto:
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+```bash
+docker compose up -d --build
+```
 
-***
+---
 
-# Editing this README
+## 🌐 Puertos y Accesos
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+| Servicio | URL | Descripción |
+| :--- | :--- | :--- |
+| **Game Inventory Web UI** | `http://localhost:5057` | Interfaz principal estilo RomM |
+| **API Documentation** | `http://localhost:5057/api/docs` | Documentación de la API FastAPI (Swagger) |
+| **RomM Manager App** | `http://localhost:8095` | Instancia de RomM para ROMs y emulación |
 
-## Suggestions for a good README
+---
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## 📡 Endpoints de la API
 
-## Name
-Choose a self-explaining name for your project.
+- `GET /api/stats`: Devuelve métricas globales (juegos únicos, repetidos, horas jugadas, distribución por tienda y diagnósticos de sync).
+- `GET /api/games`: Lista juegos con soporte para búsqueda (`q`), filtro de tiendas (`store`), duplicados (`dupes`), paginación (`limit`, `offset`).
+- `GET /api/check?title=...`: Consulta rápida de disponibilidad (*¿Ya tengo este juego?*).
+- `POST /api/sync`: Dispara el proceso de sincronización con las APIs externas.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+---
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## 📄 Licencia
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Este proyecto está bajo la licencia MIT. Libre para modificar, distribuir y personalizar.
