@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Game Inventory — Tech HUD</title>
+    <title>Game Inventory — Tech HUD Core</title>
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +15,9 @@
 </head>
 
 <body>
+    <!-- CRT Scanlines overlay container -->
+    <div id="scanlines-overlay" class="scanlines-overlay" hidden></div>
+
     <div class="layout">
 
         <aside class="sidebar" id="sidebar">
@@ -30,7 +33,11 @@
                 <button class="icon-btn only-mobile" id="nav-close" aria-label="Cerrar menú">✕</button>
             </div>
 
+            <!-- Stats HUD -->
             <div class="hud" id="hud"></div>
+
+            <!-- Platform Distribution HUD -->
+            <div class="hud-widget" id="hud-widget"></div>
 
             <nav id="nav"></nav>
 
@@ -60,6 +67,23 @@
                 </div>
 
                 <div class="topbar-actions">
+                    <!-- Theme Accent Picker -->
+                    <div class="theme-picker" id="theme-picker" title="Seleccionar Acento de Color Neón">
+                        <button class="color-dot active" data-color="#00f0ff" style="--c:#00f0ff" title="Cyber Cyan"></button>
+                        <button class="color-dot" data-color="#ff007f" style="--c:#ff007f" title="Neon Pink"></button>
+                        <button class="color-dot" data-color="#00ff88" style="--c:#00ff88" title="Matrix Green"></button>
+                        <button class="color-dot" data-color="#9d4edd" style="--c:#9d4edd" title="Ultraviolet"></button>
+                        <button class="color-dot" data-color="#ffaa00" style="--c:#ffaa00" title="Solar Amber"></button>
+                    </div>
+
+                    <!-- Scanlines FX Button -->
+                    <button class="icon-btn scanline-btn" id="scanlines-btn" title="Alternar Efecto Scanlines CRT">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 8h14v2H5V8zm0 5h14v2H5v-2z"/>
+                        </svg>
+                    </button>
+
+                    <!-- View Modes Toggle -->
                     <div class="view-toggle" id="view-toggle">
                         <button class="view-btn active" data-view="grid" title="Vista Cuadrícula">
                             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
@@ -73,6 +97,7 @@
                         </button>
                     </div>
 
+                    <!-- Sort Selection -->
                     <div class="sort-wrapper">
                         <select id="sort-select" class="sort-select" title="Ordenar por">
                             <option value="name-asc">A-Z Nombre</option>
@@ -85,6 +110,26 @@
             </header>
 
             <main class="content">
+                <!-- Hero Spotlight Banner -->
+                <div class="hero-spotlight" id="hero-spotlight">
+                    <div class="hero-bg" id="hero-bg"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="hero-content">
+                        <div class="hero-badge" id="hero-badge">🎲 DESTACADO ALEATORIO</div>
+                        <h1 class="hero-title" id="hero-title">—</h1>
+                        <div class="hero-meta" id="hero-meta"></div>
+                        <div class="hero-actions">
+                            <button class="hero-btn" id="hero-random-btn">
+                                <span>🎲 Siguiente Título</span>
+                            </button>
+                            <button class="hero-btn alt" id="hero-detail-btn">
+                                <span>🔍 Ficha Completa</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Filter Chips -->
                 <div class="quick-filters-bar" id="quick-filters"></div>
 
                 <div class="section-head">
@@ -92,6 +137,7 @@
                     <div id="count" class="count"></div>
                 </div>
 
+                <!-- Games Grid / List Container -->
                 <div class="grid view-grid" id="grid"></div>
 
                 <button class="more" id="more" hidden>

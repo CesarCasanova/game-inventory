@@ -1,4 +1,4 @@
-/* Game Inventory — Interface Controller */
+/* Game Inventory — Nexus Tech HUD Controller */
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -22,8 +22,10 @@ const state = {
     total: 0,
     view: 'grid',
     sort: 'name-asc',
-    items: [],
-    stats: null
+    rawItems: [],
+    filteredItems: [],
+    stats: null,
+    heroGame: null
 };
 
 let debounceTimer = null;
@@ -31,7 +33,32 @@ let debounceTimer = null;
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
-    // Search listener
+    // Restore Theme Accent
+    const savedTheme = localStorage.getItem('nexus-theme') || '#00f0ff';
+    setThemeColor(savedTheme);
+
+    // Restore Scanlines Preference
+    const savedScanlines = localStorage.getItem('nexus-scanlines') === 'on';
+    toggleScanlines(savedScanlines);
+
+    // Theme Picker listener
+    $$('#theme-picker .color-dot').forEach((dot) => {
+        dot.addEventListener('click', () => {
+            const color = dot.dataset.color;
+            setThemeColor(color);
+            localStorage.setItem('nexus-theme', color);
+        });
+    });
+
+    // Scanlines toggle button
+    $('#scanlines-btn').addEventListener('click', () => {
+        const overlay = $('#scanlines-overlay');
+        const active = overlay.hidden;
+        toggleScanlines(active);
+        localStorage.setItem('nexus-scanlines', active ? 'on' : 'off');
+    });
+
+    // Search input
     const searchInput = $('#q');
     const clearBtn = $('#clear-search');
 
@@ -70,6 +97,12 @@ async function init() {
         renderItems();
     });
 
+    // Hero buttons
+    $('#hero-random-btn').addEventListener('click', pickRandomHeroGame);
+    $('#hero-detail-btn').addEventListener('click', () => {
+        if (state.heroGame) openModal(state.heroGame);
+    });
+
     // More button listener
     $('#more').addEventListener('click', () => {
         state.offset += state.limit;
@@ -106,12 +139,25 @@ async function init() {
     load(true);
 }
 
+function setThemeColor(color) {
+    document.documentElement.style.setProperty('--cyan', color);
+    document.documentElement.style.setProperty('--cyan-glow', `${color}55`);
+    $$('#theme-picker .color-dot').forEach((d) => {
+        d.classList.toggle('active', d.dataset.color === color);
+    });
+}
+
+function toggleScanlines(enable) {
+    $('#scanlines-overlay').hidden = !enable;
+    $('#scanlines-btn').classList.toggle('active', enable);
+}
+
 function toggleNav(open) {
     $('#sidebar').classList.toggle('open', open);
     $('#scrim').hidden = !open;
 }
 
-/* ---------------------------------------------------------------- HUD Stats & Nav */
+/* ---------------------------------------------------------------- HUD Stats & Breakdown */
 async function refreshStats() {
     let s;
     try {
@@ -135,7 +181,34 @@ async function refreshStats() {
         </div>
         <div class="cell wide">
             <div class="k">Horas Jugadas</div>
-            <div class="v">${Math.round(s.playtime_hours)} h <span style="font-size:11px;opacity:0.7">(${s.entries} títulos)</span></div>
+            <div class="v">${Math.round(s.playtime_hours)} h <span style="font-size:10.5px;opacity:0.7">(${s.entries} títulos)</span></div>
+        </div>
+    `;
+
+    // Render Platform Breakdown Progress Bars
+    const totalEntries = s.entries || 1;
+    const storeBarsHtml = s.per_store.map((st) => {
+        const pct = Math.round((st.count / totalEntries) * 100);
+        return `
+            <div class="dist-row">
+                <div class="dist-label-row">
+                    <span>${esc(st.label)}</span>
+                    <span>${st.count} (${pct}%)</span>
+                </div>
+                <div class="dist-bar">
+                    <div class="dist-fill ${esc(st.store)}" style="width:${pct}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    $('#hud-widget').innerHTML = `
+        <div class="widget-title">
+            <span>DISTRIBUCIÓN DE TIENDAS</span>
+            <span>${s.per_store.length} PLATAFORMAS</span>
+        </div>
+        <div class="dist-bar-group">
+            ${storeBarsHtml}
         </div>
     `;
 
@@ -143,6 +216,8 @@ async function refreshStats() {
     const items = [
         { id: 'all', label: 'Todos los Juegos', n: s.unique_games, icon: 'manual' },
         { id: 'dupes', label: 'Repetidos', n: s.duplicates, icon: 'manual' },
+        { id: 'played', label: '🎮 Jugados (>0h)', n: '—', icon: 'manual' },
+        { id: 'unplayed', label: '💤 Backlog (0h)', n: '—', icon: 'manual' },
     ];
     const stores = s.per_store.map((x) => ({ id: x.store, label: x.label, n: x.count, icon: x.store }));
 
@@ -164,13 +239,15 @@ async function refreshStats() {
     const quickChips = [
         { id: 'all', label: 'Todos', n: s.unique_games },
         { id: 'dupes', label: '⚡ Repetidos', n: s.duplicates },
+        { id: 'played', label: '🎮 Jugados (>0h)', n: '' },
+        { id: 'unplayed', label: '💤 Backlog (0h)', n: '' },
         ...s.per_store.map((x) => ({ id: x.store, label: x.label, n: x.count }))
     ];
 
     $('#quick-filters').innerHTML = quickChips.map((c) => `
         <button class="quick-chip ${state.filter === c.id ? 'active' : ''}" data-f="${esc(c.id)}">
             <span>${esc(c.label)}</span>
-            <span class="chip-count">(${c.n})</span>
+            ${c.n !== '' ? `<span class="chip-count">(${c.n})</span>` : ''}
         </button>
     `).join('');
 
@@ -206,7 +283,6 @@ function navBtn(x) {
 function setFilter(filterId, labelText) {
     state.filter = filterId;
     
-    // Update nav states
     $('#nav').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x.dataset.f === filterId));
     $('#quick-filters').querySelectorAll('.quick-chip').forEach((x) => x.classList.toggle('active', x.dataset.f === filterId));
 
@@ -218,30 +294,34 @@ function setFilter(filterId, labelText) {
 async function load(reset) {
     if (reset) {
         state.offset = 0;
-        state.items = [];
-        $('#grid').innerHTML = '<div class="empty">// CARGANDO BASE DE DATOS...</div>';
+        state.rawItems = [];
+        renderSkeletons();
     }
 
     const p = new URLSearchParams({ q: state.q, limit: state.limit, offset: state.offset });
     if (state.filter === 'dupes') p.set('dupes', 'true');
-    else if (state.filter !== 'all') p.set('store', state.filter);
+    else if (state.filter !== 'all' && state.filter !== 'played' && state.filter !== 'unplayed') p.set('store', state.filter);
 
     try {
         const r = await fetch('api/games?' + p);
         const d = await r.json();
         if (!r.ok) throw new Error(d.detail || r.status);
         
-        state.total = d.count;
         if (reset) {
-            state.items = d.items;
+            state.rawItems = d.items;
         } else {
-            state.items = [...state.items, ...d.items];
+            state.rawItems = [...state.rawItems, ...d.items];
         }
 
+        applyClientFilters();
         sortItems();
         renderItems();
 
-        if (!d.count) {
+        if (!state.heroGame && state.rawItems.length) {
+            pickRandomHeroGame();
+        }
+
+        if (!state.filteredItems.length) {
             $('#grid').innerHTML = '<p class="empty">// SIN COINCIDENCIAS REGISTRADAS</p>';
         }
 
@@ -254,37 +334,81 @@ async function load(reset) {
     }
 }
 
+function renderSkeletons() {
+    const skeletonsHtml = Array(6).fill(0).map(() => '<div class="skeleton-card"></div>').join('');
+    $('#grid').innerHTML = skeletonsHtml;
+}
+
+function applyClientFilters() {
+    let list = [...state.rawItems];
+    if (state.filter === 'played') {
+        list = list.filter((g) => (g.playtime_min || 0) > 0);
+    } else if (state.filter === 'unplayed') {
+        list = list.filter((g) => (g.playtime_min || 0) === 0);
+    }
+    state.filteredItems = list;
+}
+
 function sortItems() {
     switch (state.sort) {
         case 'name-asc':
-            state.items.sort((a, b) => a.title.localeCompare(b.title));
+            state.filteredItems.sort((a, b) => a.title.localeCompare(b.title));
             break;
         case 'name-desc':
-            state.items.sort((a, b) => b.title.localeCompare(a.title));
+            state.filteredItems.sort((a, b) => b.title.localeCompare(a.title));
             break;
         case 'playtime-desc':
-            state.items.sort((a, b) => (b.playtime_min || 0) - (a.playtime_min || 0));
+            state.filteredItems.sort((a, b) => (b.playtime_min || 0) - (a.playtime_min || 0));
             break;
         case 'stores-desc':
-            state.items.sort((a, b) => (b.store_count || 0) - (a.store_count || 0) || a.title.localeCompare(b.title));
+            state.filteredItems.sort((a, b) => (b.store_count || 0) - (a.store_count || 0) || a.title.localeCompare(b.title));
             break;
     }
 }
 
+function pickRandomHeroGame() {
+    if (!state.rawItems.length) return;
+    const randomIndex = Math.floor(Math.random() * state.rawItems.length);
+    const game = state.rawItems[randomIndex];
+    state.heroGame = game;
+
+    const bgEl = $('#hero-bg');
+    if (game.cover) {
+        bgEl.style.backgroundImage = `url("${game.cover}")`;
+    } else {
+        bgEl.style.backgroundImage = 'none';
+    }
+
+    const dupe = game.store_count > 1;
+    $('#hero-badge').textContent = dupe ? '⚡ REPETIDO DESTACADO' : '🎲 DESTACADO ALEATORIO';
+    $('#hero-title').textContent = game.title;
+
+    const hours = game.playtime_min >= 60 ? `${Math.round(game.playtime_min / 60)}h jugadas` : 'Sin horas registradas';
+    const storesList = game.copies.map((c) => c.store_label).join(' · ');
+
+    $('#hero-meta').innerHTML = `
+        <span>🎮 ${hours}</span>
+        <span>|</span>
+        <span>📦 Disponible en: ${esc(storesList)}</span>
+    `;
+
+    $('#hero-spotlight').style.display = 'flex';
+}
+
 function renderItems() {
     const container = $('#grid');
-    if (!state.items.length) return;
+    if (!state.filteredItems.length) return;
 
     if (state.view === 'list') {
-        container.innerHTML = state.items.map(listRow).join('');
+        container.innerHTML = state.filteredItems.map(listRow).join('');
     } else {
-        container.innerHTML = state.items.map(card).join('');
+        container.innerHTML = state.filteredItems.map(card).join('');
     }
 
     // Attach click listeners to cards for Modal
     container.querySelectorAll('.card').forEach((cardEl, idx) => {
         cardEl.addEventListener('click', () => {
-            const game = state.items[idx];
+            const game = state.filteredItems[idx];
             if (game) openModal(game);
         });
     });
