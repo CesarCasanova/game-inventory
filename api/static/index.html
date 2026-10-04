@@ -4,12 +4,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Game Inventory</title>
+    <title>Game Inventory — Tech HUD</title>
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=JetBrains+Mono:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -19,10 +19,13 @@
 
         <aside class="sidebar" id="sidebar">
             <div class="brand">
-                <span class="logo"><span></span></span>
+                <div class="logo">
+                    <div class="logo-inner"></div>
+                    <div class="logo-pulse"></div>
+                </div>
                 <div class="brand-text">
-                    <strong>GAME</strong><em>INVENTORY</em>
-                    <span class="brand-sub">multi-store library</span>
+                    <strong>NEXUS</strong><em>INVENTORY</em>
+                    <span class="brand-sub">Multi-Store Core</span>
                 </div>
                 <button class="icon-btn only-mobile" id="nav-close" aria-label="Cerrar menú">✕</button>
             </div>
@@ -33,35 +36,76 @@
 
             <div class="side-foot">
                 <button class="sync-btn" id="sync">
-                    <span class="dot"></span> Sincronizar
+                    <span class="dot"></span>
+                    <span class="sync-text">Sincronizar</span>
                 </button>
                 <div id="sync-info">—</div>
             </div>
         </aside>
+
         <div class="scrim" id="scrim" hidden></div>
 
         <div class="main">
             <header class="topbar">
                 <button class="icon-btn only-mobile" id="nav-open" aria-label="Abrir menú">☰</button>
+
                 <div class="search">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" class="search-ico">
                         <path
                             d="M10 4a6 6 0 104.47 10.03l4.25 4.25 1.41-1.41-4.25-4.25A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z" />
                     </svg>
-                    <input id="q" type="search" placeholder="¿Ya tengo este juego? Escribe el título…"
-                        autocomplete="off">
-                    <kbd>/</kbd>
+                    <input id="q" type="search" placeholder="¿Ya tengo este juego? Busca por título…" autocomplete="off">
+                    <button class="clear-btn" id="clear-search" hidden aria-label="Limpiar búsqueda">✕</button>
+                    <kbd class="hotkey">/</kbd>
+                </div>
+
+                <div class="topbar-actions">
+                    <div class="view-toggle" id="view-toggle">
+                        <button class="view-btn active" data-view="grid" title="Vista Cuadrícula">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
+                            </svg>
+                        </button>
+                        <button class="view-btn" data-view="list" title="Vista Lista Compacta">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="sort-wrapper">
+                        <select id="sort-select" class="sort-select" title="Ordenar por">
+                            <option value="name-asc">A-Z Nombre</option>
+                            <option value="name-desc">Z-A Nombre</option>
+                            <option value="playtime-desc">⏱ Más jugados</option>
+                            <option value="stores-desc">⚡ Repetidos / Tiendas</option>
+                        </select>
+                    </div>
                 </div>
             </header>
 
             <main class="content">
+                <div class="quick-filters-bar" id="quick-filters"></div>
+
                 <div class="section-head">
                     <h2 id="section-title">Todos los juegos</h2>
                     <div id="count" class="count"></div>
                 </div>
-                <div class="grid" id="grid"></div>
-                <button class="more" id="more" hidden>Cargar más</button>
+
+                <div class="grid view-grid" id="grid"></div>
+
+                <button class="more" id="more" hidden>
+                    <span class="more-icon">▼</span> Cargar más registros
+                </button>
             </main>
+        </div>
+    </div>
+
+    <!-- Modal para Detalle del Juego -->
+    <div class="modal-backdrop" id="modal-backdrop" hidden>
+        <div class="modal-window" id="modal-window">
+            <button class="modal-close" id="modal-close" aria-label="Cerrar modal">✕</button>
+            <div id="modal-body" class="modal-body"></div>
         </div>
     </div>
 
